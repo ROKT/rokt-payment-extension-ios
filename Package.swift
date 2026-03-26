@@ -2,13 +2,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "rokt-stripe-payment-extension-ios",
+    name: "RoktStripePaymentExtension",
     platforms: [.iOS(.v15)],
     products: [
         .library(name: "RoktStripePaymentExtension", targets: ["RoktStripePaymentExtension"])
     ],
     dependencies: [
-        .package(url: "https://github.com/ROKT/rokt-contracts-apple.git", from: "1.0.0"),
+        .package(url: "https://github.com/ROKT/rokt-contracts-apple.git", from: "0.1.2"),
         .package(url: "https://github.com/stripe/stripe-ios.git", from: "24.25.0")
     ],
     targets: [
