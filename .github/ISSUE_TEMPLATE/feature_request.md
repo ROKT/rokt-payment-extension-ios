@@ -12,7 +12,7 @@ A clear and concise description of the new type or protocol.
 **Which repositories would use this?**
 List the repos that would depend on this type.
 
-### Proposed API
+## Proposed API
 
 ```swift
 // Sketch the proposed API surface
