@@ -16,7 +16,7 @@ final class RoktStripePaymentExtensionTests: XCTestCase {
         let ext = RoktStripePaymentExtension(applePayMerchantId: "merchant.test")!
         XCTAssertEqual(ext.id, "rokt-stripe-payment-extension")
         XCTAssertEqual(ext.extensionDescription, "Rokt Stripe Payment Extension")
-        XCTAssertEqual(ext.supportedMethods, [.applePay, .card])
+        XCTAssertEqual(ext.supportedMethods, ["apple_pay", "card"])
     }
 
     func testOnRegisterWithoutStripeKeyReturnsFalse() {

@@ -22,8 +22,11 @@ internal class StripeApplePayManager: NSObject {
     internal func presentPayment(
         item: PaymentItem,
         from viewController: UIViewController,
-        preparePayment: @escaping (@Sendable (ContactAddress) async throws -> PaymentPreparation),
-        completion: @escaping (PaymentResult) -> Void
+        preparePayment: @escaping (
+            _ address: ContactAddress,
+            _ completion: @escaping (PaymentPreparation?, Error?) -> Void
+        ) -> Void,
+        completion: @escaping (PaymentSheetResult) -> Void
     ) {
         guard !item.name.isEmpty else {
             completion(.failed(error: "Payment item name cannot be empty"))
@@ -35,7 +38,7 @@ internal class StripeApplePayManager: NSObject {
             return
         }
 
-        guard item.amount > 0 else {
+        guard item.amount.compare(NSDecimalNumber.zero) == .orderedDescending else {
             completion(.failed(error: "Payment item amount must be greater than zero"))
             return
         }
@@ -87,7 +90,7 @@ internal class StripeApplePayManager: NSObject {
         request.paymentSummaryItems = [
             PKPaymentSummaryItem(
                 label: item.name,
-                amount: NSDecimalNumber(decimal: item.amount)
+                amount: item.amount
             )
         ]
         return request
@@ -100,8 +103,11 @@ private class StripeApplePayDelegate: NSObject, ApplePayContextDelegate {
 
     let apiClient: STPAPIClient
     let item: PaymentItem
-    let preparePayment: @Sendable (ContactAddress) async throws -> PaymentPreparation
-    let completion: (PaymentResult) -> Void
+    let preparePayment: (
+        _ address: ContactAddress,
+        _ completion: @escaping (PaymentPreparation?, Error?) -> Void
+    ) -> Void
+    let completion: (PaymentSheetResult) -> Void
 
     private var clientSecret: String?
     private var isPaymentPrepared = false
@@ -109,8 +115,11 @@ private class StripeApplePayDelegate: NSObject, ApplePayContextDelegate {
     init(
         apiClient: STPAPIClient,
         item: PaymentItem,
-        preparePayment: @escaping (@Sendable (ContactAddress) async throws -> PaymentPreparation),
-        completion: @escaping (PaymentResult) -> Void
+        preparePayment: @escaping (
+            _ address: ContactAddress,
+            _ completion: @escaping (PaymentPreparation?, Error?) -> Void
+        ) -> Void,
+        completion: @escaping (PaymentSheetResult) -> Void
     ) {
         self.apiClient = apiClient
         self.item = item
@@ -125,10 +134,10 @@ private class StripeApplePayDelegate: NSObject, ApplePayContextDelegate {
     ) {
         let address = ContactAddressMapping.map(from: contact)
 
-        Task {
-            do {
-                let preparation = try await self.preparePayment(address)
+        preparePayment(address) { [weak self] preparation, _ in
+            guard let self else { return }
 
+            if let preparation {
                 self.isPaymentPrepared = true
                 self.clientSecret = preparation.clientSecret
                 self.apiClient.stripeAccount = preparation.merchantId
@@ -136,7 +145,7 @@ private class StripeApplePayDelegate: NSObject, ApplePayContextDelegate {
                 let updatedItems = [
                     PKPaymentSummaryItem(
                         label: "Total",
-                        amount: NSDecimalNumber(decimal: self.item.amount)
+                        amount: self.item.amount
                     )
                 ]
 
@@ -145,7 +154,7 @@ private class StripeApplePayDelegate: NSObject, ApplePayContextDelegate {
                     paymentSummaryItems: updatedItems,
                     shippingMethods: []
                 ))
-            } catch {
+            } else {
                 self.isPaymentPrepared = false
                 self.clientSecret = nil
 

@@ -25,13 +25,10 @@ final class StripeApplePayManagerTests: XCTestCase {
             item: item,
             method: .applePay,
             from: UIViewController(),
-            preparePayment: { _ in fatalError("should not be called") }
+            preparePayment: { _, _ in fatalError("should not be called") }
         ) { result in
-            if case .failed(let error) = result {
-                XCTAssertFalse(error.isEmpty)
-            } else {
-                XCTFail("Expected .failed, got \(result)")
-            }
+            XCTAssertEqual(result.outcome, .failed)
+            XCTAssertNotNil(result.errorMessage)
             expectation.fulfill()
         }
 
@@ -48,13 +45,10 @@ final class StripeApplePayManagerTests: XCTestCase {
             item: item,
             method: .applePay,
             from: UIViewController(),
-            preparePayment: { _ in fatalError("should not be called") }
+            preparePayment: { _, _ in fatalError("should not be called") }
         ) { result in
-            if case .failed(let error) = result {
-                XCTAssertFalse(error.isEmpty)
-            } else {
-                XCTFail("Expected .failed, got \(result)")
-            }
+            XCTAssertEqual(result.outcome, .failed)
+            XCTAssertNotNil(result.errorMessage)
             expectation.fulfill()
         }
 
@@ -71,13 +65,10 @@ final class StripeApplePayManagerTests: XCTestCase {
             item: item,
             method: .applePay,
             from: UIViewController(),
-            preparePayment: { _ in fatalError("should not be called") }
+            preparePayment: { _, _ in fatalError("should not be called") }
         ) { result in
-            if case .failed(let error) = result {
-                XCTAssertFalse(error.isEmpty)
-            } else {
-                XCTFail("Expected .failed, got \(result)")
-            }
+            XCTAssertEqual(result.outcome, .failed)
+            XCTAssertNotNil(result.errorMessage)
             expectation.fulfill()
         }
 
@@ -94,13 +85,10 @@ final class StripeApplePayManagerTests: XCTestCase {
             item: item,
             method: .applePay,
             from: UIViewController(),
-            preparePayment: { _ in fatalError("should not be called") }
+            preparePayment: { _, _ in fatalError("should not be called") }
         ) { result in
-            if case .failed(let error) = result {
-                XCTAssertFalse(error.isEmpty)
-            } else {
-                XCTFail("Expected .failed, got \(result)")
-            }
+            XCTAssertEqual(result.outcome, .failed)
+            XCTAssertNotNil(result.errorMessage)
             expectation.fulfill()
         }
 
@@ -118,13 +106,10 @@ final class StripeApplePayManagerTests: XCTestCase {
             item: item,
             method: .applePay,
             from: UIViewController(),
-            preparePayment: { _ in fatalError("should not be called") }
+            preparePayment: { _, _ in fatalError("should not be called") }
         ) { result in
-            if case .failed(let error) = result {
-                XCTAssertFalse(error.isEmpty)
-            } else {
-                XCTFail("Expected .failed, got \(result)")
-            }
+            XCTAssertEqual(result.outcome, .failed)
+            XCTAssertNotNil(result.errorMessage)
             expectation.fulfill()
         }
 

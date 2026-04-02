@@ -10,7 +10,10 @@ public class RoktStripePaymentExtension: PaymentExtension {
 
     public let id: String = "rokt-stripe-payment-extension"
     public let extensionDescription: String = "Rokt Stripe Payment Extension"
-    public let supportedMethods: [PaymentMethodType] = [.applePay, .card]
+    public let supportedMethods: [String] = [
+        PaymentMethodType.applePay.wireValue,
+        PaymentMethodType.card.wireValue
+    ]
 
     // MARK: - Private Properties
 
@@ -62,8 +65,11 @@ public class RoktStripePaymentExtension: PaymentExtension {
         item: PaymentItem,
         method: PaymentMethodType,
         from viewController: UIViewController,
-        preparePayment: @escaping (@Sendable (ContactAddress) async throws -> PaymentPreparation),
-        completion: @escaping (PaymentResult) -> Void
+        preparePayment: @escaping (
+            _ address: ContactAddress,
+            _ completion: @escaping (PaymentPreparation?, Error?) -> Void
+        ) -> Void,
+        completion: @escaping (PaymentSheetResult) -> Void
     ) {
         guard let stripeApplePayManager else {
             completion(.failed(error: "Apple Pay not configured. Call onRegister(parameters:) with a valid stripeKey first."))
