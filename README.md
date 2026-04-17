@@ -48,7 +48,7 @@ import Rokt_Widget
 import RoktStripePaymentExtension
 
 // 1. Initialize Rokt
-Rokt.initialize(roktTagId: "your-tag-id")
+Rokt.initWith(roktTagId: "your-tag-id")
 
 // 2. Create the payment extension with your Apple Pay merchant ID
 guard let stripeExtension = RoktStripePaymentExtension(
@@ -61,8 +61,8 @@ Rokt.registerPaymentExtension(stripeExtension, config: [
 ])
 
 // 4. Show Shoppable Ads (always overlay)
-Rokt.shoppableAds(
-    viewName: "ConfirmationPage",
+Rokt.selectShoppableAds(
+    identifier: "ConfirmationPage",
     attributes: [
         "email": "user@example.com",
         "firstname": "John",
@@ -115,12 +115,12 @@ MParticle.sharedInstance().rokt.shoppableAds(
 
 ### What Partners Need for Each Scenario
 
-| Scenario                        | Packages                                 | Stripe Key Source             | Code                                                           |
-| ------------------------------- | ---------------------------------------- | ----------------------------- | -------------------------------------------------------------- |
-| Standard placements (mParticle) | mParticle SDK + Rokt Kit                 | —                             | `rokt.selectPlacements(...)`                                   |
-| Shoppable Ads (mParticle)       | Above + RoktStripePaymentExtension       | Dashboard config (automatic)  | `registerPaymentExtension(ext)` + `shoppableAds(...)`          |
-| Standard placements (Direct)    | Rokt-Widget                              | —                             | `Rokt.selectPlacements(...)`                                   |
-| Shoppable Ads (Direct)          | Rokt-Widget + RoktStripePaymentExtension | Partner passes in config dict | `registerPaymentExtension(ext, config:)` + `shoppableAds(...)` |
+| Scenario                        | Packages                                 | Stripe Key Source             | Code                                                                 |
+| ------------------------------- | ---------------------------------------- | ----------------------------- | -------------------------------------------------------------------- |
+| Standard placements (mParticle) | mParticle SDK + Rokt Kit                 | —                             | `rokt.selectPlacements(...)`                                         |
+| Shoppable Ads (mParticle)       | Above + RoktStripePaymentExtension       | Dashboard config (automatic)  | `registerPaymentExtension(ext)` + `shoppableAds(...)`                |
+| Standard placements (Direct)    | Rokt-Widget                              | —                             | `Rokt.selectPlacements(...)`                                         |
+| Shoppable Ads (Direct)          | Rokt-Widget + RoktStripePaymentExtension | Partner passes in config dict | `registerPaymentExtension(ext, config:)` + `selectShoppableAds(...)` |
 
 ## Architecture
 
