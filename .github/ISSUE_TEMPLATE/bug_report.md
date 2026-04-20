@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug in RoktStripePaymentExtension
+about: Report a bug in RoktPaymentExtension
 title: "[BUG] "
 labels: bug
 assignees: ""
@@ -17,7 +17,7 @@ What you expected to happen.
 
 ## Environment
 
-- RoktStripePaymentExtension version:
+- RoktPaymentExtension version:
 - Xcode version:
 - iOS version:
 - Package manager: SPM / CocoaPods

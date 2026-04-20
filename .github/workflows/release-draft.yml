@@ -49,7 +49,7 @@ jobs:
       - name: Update podspec version
         run: |
           version="${{ steps.bump-version.outputs.new_version }}"
-          sed -i "s/s\.version[[:space:]]*=[[:space:]]*'[0-9.]*'/s.version          = '${version}'/" RoktStripePaymentExtension.podspec
+          sed -i "s/s\.version[[:space:]]*=[[:space:]]*'[0-9.]*'/s.version          = '${version}'/" RoktPaymentExtension.podspec
 
       - name: Generate changelog from git history
         id: changelog

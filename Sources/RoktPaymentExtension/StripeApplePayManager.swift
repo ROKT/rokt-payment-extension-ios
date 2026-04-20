@@ -180,7 +180,7 @@ private class StripeApplePayDelegate: NSObject, ApplePayContextDelegate {
             completion(
                 nil,
                 NSError(
-                    domain: "RoktStripePaymentExtension",
+                    domain: "RoktPaymentExtension",
                     code: -1,
                     userInfo: [NSLocalizedDescriptionKey: "Payment must be prepared before completion"]
                 )

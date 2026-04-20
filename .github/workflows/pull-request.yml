@@ -36,7 +36,7 @@ jobs:
       - name: Build and run unit tests
         run: |
           xcodebuild test \
-            -scheme RoktStripePaymentExtension \
+            -scheme RoktPaymentExtension \
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -skipPackagePluginValidation \
             -enableCodeCoverage YES \
@@ -46,7 +46,7 @@ jobs:
         if: always()
         run: |
           xcrun llvm-cov export \
-            $(find ~/Library/Developer/Xcode/DerivedData -name 'RoktStripePaymentExtension.o' -type f | head -1) \
+            $(find ~/Library/Developer/Xcode/DerivedData -name 'RoktPaymentExtension.o' -type f | head -1) \
             -instr-profile $(find ~/Library/Developer/Xcode/DerivedData -name 'Coverage.profdata' -type f | head -1) \
             -format lcov > coverage.lcov 2>/dev/null || true
 
@@ -65,7 +65,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Lint podspec
-        run: pod lib lint RoktStripePaymentExtension.podspec --allow-warnings --verbose
+        run: pod lib lint RoktPaymentExtension.podspec --allow-warnings --verbose
 
   pr-notify:
     if: >

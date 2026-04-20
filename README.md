@@ -1,17 +1,18 @@
-# Rokt Stripe Payment Extension (iOS)
+# Rokt Payment Extension (iOS)
 
-Optional Stripe payment integration for the Rokt iOS SDK ecosystem.
-Provides Apple Pay, card, and Afterpay/Clearpay support via Stripe for
-[Shoppable Ads](https://docs.rokt.com) placements.
+Optional payment integration for the Rokt iOS SDK ecosystem. Currently provides
+Apple Pay, card, and Afterpay/Clearpay support via Stripe for
+[Shoppable Ads](https://docs.rokt.com) placements. Designed to host additional
+providers (e.g. PayPal, Klarna) over time.
 
-This package depends only on [RoktContracts](https://github.com/ROKT/rokt-contracts-apple) — not the full Rokt SDK — keeping the Stripe dependency isolated and the integration lightweight.
+This package depends only on [RoktContracts](https://github.com/ROKT/rokt-contracts-apple) — not the full Rokt SDK — keeping payment-provider SDKs isolated and the integration lightweight.
 
 ## Requirements
 
 - iOS 15.0+
 - Swift 5.9+
 - Xcode 15.0+
-- Stripe account with Apple Pay enabled
+- Stripe account with Apple Pay enabled (for Apple Pay / card)
 - For Afterpay / Clearpay: a Stripe account with the method enabled and a custom
   URL scheme registered in the host app's `Info.plist` for redirect callbacks
 
@@ -22,24 +23,34 @@ This package depends only on [RoktContracts](https://github.com/ROKT/rokt-contra
 In Xcode: **File > Add Packages**, enter:
 
 ```text
-https://github.com/ROKT/rokt-stripe-payment-extension-ios.git
+https://github.com/ROKT/rokt-payment-extension-ios.git
 ```
 
 Or add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ROKT/rokt-stripe-payment-extension-ios.git", from: "0.1.0")
+    .package(url: "https://github.com/ROKT/rokt-payment-extension-ios.git", from: "1.0.0")
 ]
 ```
 
 ### CocoaPods
 
 ```ruby
-pod 'RoktStripePaymentExtension'
+pod 'RoktPaymentExtension'
 ```
 
 ## Usage
+
+The extension accepts optional init params — you enable only the methods you
+want to support. At least one of `applePayMerchantId` or `returnURL` must be
+provided; otherwise the initializer returns `nil`.
+
+| Init parameters           | Enables                   |
+| ------------------------- | ------------------------- |
+| `applePayMerchantId` only | Apple Pay, card           |
+| `returnURL` only          | Afterpay / Clearpay       |
+| Both                      | Apple Pay, card, Afterpay |
 
 ### Direct Rokt SDK Integration
 
@@ -48,20 +59,20 @@ explicitly at registration time:
 
 ```swift
 import Rokt_Widget
-import RoktStripePaymentExtension
+import RoktPaymentExtension
 
 // 1. Initialize Rokt
 Rokt.initWith(roktTagId: "your-tag-id")
 
-// 2. Create the payment extension with your Apple Pay merchant ID.
-//    Optionally pass `returnURL` (a custom URL scheme) to enable Afterpay / Clearpay.
-guard let stripeExtension = RoktStripePaymentExtension(
+// 2. Create the payment extension.
+//    Supply `applePayMerchantId` for Apple Pay, `returnURL` for Afterpay, or both.
+guard let paymentExtension = RoktPaymentExtension(
     applePayMerchantId: "merchant.com.example",
     returnURL: "myapp://stripe-redirect" // omit to keep the extension Apple-Pay-only
 ) else { return }
 
 // 3. Register with the Rokt SDK — pass your Stripe publishable key
-Rokt.registerPaymentExtension(stripeExtension, config: [
+Rokt.registerPaymentExtension(paymentExtension, config: [
     "stripeKey": "pk_live_abc123"
 ])
 
@@ -87,7 +98,7 @@ Rokt.selectShoppableAds(
 )
 ```
 
-### mParticle Joint SDK Integration
+### SDK+ Integration
 
 When using the mParticle SDK, the Stripe publishable key is **automatically provided
 from the mParticle dashboard configuration**. The partner only needs to create the
@@ -96,17 +107,16 @@ Rokt SDK:
 
 ```swift
 import mParticle_Apple_SDK
-import RoktStripePaymentExtension
+import RoktPaymentExtension
 
 // 1. mParticle init handles Rokt.initialize via Kit (tagId from dashboard)
 
 // 2. Create and register the payment extension — no stripeKey needed.
-//    Optionally pass `returnURL` to enable Afterpay / Clearpay.
-guard let stripeExtension = RoktStripePaymentExtension(
+guard let paymentExtension = RoktPaymentExtension(
     applePayMerchantId: "merchant.com.example",
     returnURL: "myapp://stripe-redirect" // omit to keep the extension Apple-Pay-only
 ) else { return }
-MParticle.sharedInstance().rokt.registerPaymentExtension(stripeExtension)
+MParticle.sharedInstance().rokt.registerPaymentExtension(paymentExtension)
 // Kit automatically injects stripeKey from dashboard config
 
 // 3. Show Shoppable Ads
@@ -146,31 +156,41 @@ authentication and redirects back to your app via a custom URL scheme.
 
 ### What Partners Need for Each Scenario
 
-| Scenario                        | Packages                                 | Stripe Key Source             | Code                                                                 |
-| ------------------------------- | ---------------------------------------- | ----------------------------- | -------------------------------------------------------------------- |
-| Standard placements (mParticle) | mParticle SDK + Rokt Kit                 | —                             | `rokt.selectPlacements(...)`                                         |
-| Shoppable Ads (mParticle)       | Above + RoktStripePaymentExtension       | Dashboard config (automatic)  | `registerPaymentExtension(ext)` + `shoppableAds(...)`                |
-| Standard placements (Direct)    | Rokt-Widget                              | —                             | `Rokt.selectPlacements(...)`                                         |
-| Shoppable Ads (Direct)          | Rokt-Widget + RoktStripePaymentExtension | Partner passes in config dict | `registerPaymentExtension(ext, config:)` + `selectShoppableAds(...)` |
+| Scenario                     | Packages                           | Stripe Key Source             | Code                                                                 |
+| ---------------------------- | ---------------------------------- | ----------------------------- | -------------------------------------------------------------------- |
+| Standard placements (SDK+)   | mParticle SDK + Rokt Kit           | —                             | `rokt.selectPlacements(...)`                                         |
+| Shoppable Ads (SDK+)         | Above + RoktPaymentExtension       | Dashboard config (automatic)  | `registerPaymentExtension(ext)` + `shoppableAds(...)`                |
+| Standard placements (Direct) | Rokt-Widget                        | —                             | `Rokt.selectPlacements(...)`                                         |
+| Shoppable Ads (Direct)       | Rokt-Widget + RoktPaymentExtension | Partner passes in config dict | `registerPaymentExtension(ext, config:)` + `selectShoppableAds(...)` |
 
 ## Architecture
 
 ```text
-RoktStripePaymentExtension (public facade)
-  ├── StripeApplePayManager (Apple Pay / card)
+RoktPaymentExtension (public facade)
+  ├── StripeApplePayManager (Apple Pay / card)       ← built if applePayMerchantId provided
   │    ├── STPApplePayContext (Stripe SDK)
   │    └── ContactAddressMapping (PKContact → ContactAddress)
-  ├── StripeAfterpayManager (Afterpay / Clearpay)
+  ├── StripeAfterpayManager (Afterpay / Clearpay)    ← built if returnURL provided
   │    ├── STPPaymentHandler (Stripe SDK)
   │    └── BillingDetailsMapping (ContactAddress → Stripe billing/shipping)
   └── handleURLCallback(with:) → StripeAPI.handleURLCallback
 ```
 
-- **RoktStripePaymentExtension**: Implements `PaymentExtension` protocol from RoktContracts; routes each `PaymentMethodType` to the matching internal manager.
+- **RoktPaymentExtension**: Implements `PaymentExtension` protocol from RoktContracts; routes each `PaymentMethodType` to the matching internal manager. `supportedMethods` is computed from the configured managers.
 - **StripeApplePayManager**: Manages Apple Pay / card flows via Stripe's `STPApplePayContext`.
 - **StripeAfterpayManager**: Manages redirect-based Afterpay / Clearpay flows via `STPPaymentHandler`; validates `PaymentContext.billingAddress` and confirms the PaymentIntent with the configured `returnURL`.
 - **ContactAddressMapping**: Converts Apple Pay `PKContact` to `ContactAddress`.
 - **BillingDetailsMapping**: Converts `ContactAddress` to `STPPaymentMethodBillingDetails` and `STPPaymentIntentShippingDetailsParams`.
+
+## Migration from `RoktStripePaymentExtension` (0.x)
+
+Version 1.0 renames the package and class. To migrate:
+
+1. Replace `import RoktStripePaymentExtension` with `import RoktPaymentExtension`.
+2. Replace the class name `RoktStripePaymentExtension` with `RoktPaymentExtension`.
+3. Update your `Package.swift` URL to `https://github.com/ROKT/rokt-payment-extension-ios.git` (old URL auto-redirects via GitHub).
+4. Update your Podfile: `pod 'RoktPaymentExtension'`.
+5. Optional: the initializer now accepts an optional `applePayMerchantId`. To support only Afterpay, drop it and pass `returnURL` instead.
 
 ## License
 

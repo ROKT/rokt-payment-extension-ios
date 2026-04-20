@@ -1,15 +1,15 @@
 import RoktContracts
 import XCTest
-@testable import RoktStripePaymentExtension
+@testable import RoktPaymentExtension
 
 /// Tests that exercise validation paths inside StripeAfterpayManager through the public facade.
 final class StripeAfterpayManagerTests: XCTestCase {
 
-    private var ext: RoktStripePaymentExtension!
+    private var ext: RoktPaymentExtension!
 
     override func setUp() {
         super.setUp()
-        ext = RoktStripePaymentExtension(
+        ext = RoktPaymentExtension(
             applePayMerchantId: "merchant.test",
             returnURL: "testapp://stripe-redirect"
         )!
@@ -39,9 +39,9 @@ final class StripeAfterpayManagerTests: XCTestCase {
         )
     }
 
-    // MARK: - Validation: missing billing address
+    // MARK: - Validation: missing both addresses
 
-    func testAfterpayWithoutBillingAddressFails() {
+    func testAfterpayWithoutAnyAddressFails() {
         let item = PaymentItem(id: "item-1", name: "Widget", amount: 10.00, currency: "USD")
         let context = makeContext()
         let expect = expectation(description: "completion")
@@ -54,9 +54,33 @@ final class StripeAfterpayManagerTests: XCTestCase {
             preparePayment: { _, _ in XCTFail("should not be called") }
         ) { result in
             XCTAssertEqual(result.outcome, .failed)
-            XCTAssertTrue(result.errorMessage?.contains("billing address") ?? false)
+            XCTAssertTrue(result.errorMessage?.contains("address") ?? false)
             expect.fulfill()
         }
+
+        waitForExpectations(timeout: 1)
+    }
+
+    // MARK: - Billing address falls back to shipping when omitted
+
+    func testAfterpayFallsBackToShippingAddressWhenBillingMissing() {
+        let item = PaymentItem(id: "item-1", name: "Widget", amount: 10.00, currency: "USD")
+        let shipping = makeBillingAddress() // reuse shape; name "Jane Smith"
+        let context = makeContext(billingAddress: nil, shippingAddress: shipping)
+        let expect = expectation(description: "preparePayment invoked with shipping")
+
+        ext.presentPaymentSheet(
+            item: item,
+            method: .afterpay,
+            context: context,
+            from: UIViewController(),
+            preparePayment: { address, done in
+                XCTAssertEqual(address.name, "Jane Smith",
+                               "Should have received the shipping address as the billing fallback")
+                expect.fulfill()
+                // Don't invoke `done` — we just care that prepare fires with the right address.
+            }
+        ) { _ in }
 
         waitForExpectations(timeout: 1)
     }

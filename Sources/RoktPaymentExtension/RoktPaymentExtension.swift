@@ -4,21 +4,40 @@ import RoktContracts
 import StripeApplePay
 import UIKit
 
-public class RoktStripePaymentExtension: PaymentExtension {
+/// Rokt payment extension backed by Stripe.
+///
+/// Currently supports Apple Pay and Afterpay/Clearpay via Stripe SDKs.
+/// Partners provide what they want to support at init time:
+/// - `applePayMerchantId` only  → Apple Pay (and card via Apple Pay sheet)
+/// - `returnURL` only            → Afterpay
+/// - Both                        → all three methods
+///
+/// Returns `nil` if neither `applePayMerchantId` nor `returnURL` is provided.
+public class RoktPaymentExtension: PaymentExtension {
 
     // MARK: - PaymentExtension Protocol Properties
 
-    public let id: String = "rokt-stripe-payment-extension"
-    public let extensionDescription: String = "Rokt Stripe Payment Extension"
-    public let supportedMethods: [String] = [
-        PaymentMethodType.applePay.wireValue,
-        PaymentMethodType.card.wireValue,
-        PaymentMethodType.afterpay.wireValue
-    ]
+    public let id: String = "rokt-payment-extension"
+    public let extensionDescription: String = "Rokt Payment Extension"
+
+    /// Payment methods this extension supports, determined by which parameters
+    /// were provided at initialization. Apple Pay / card require
+    /// `applePayMerchantId`; Afterpay requires `returnURL`.
+    public var supportedMethods: [String] {
+        var methods: [String] = []
+        if let merchantId, !merchantId.isEmpty {
+            methods.append(PaymentMethodType.applePay.wireValue)
+            methods.append(PaymentMethodType.card.wireValue)
+        }
+        if let returnURL, !returnURL.isEmpty {
+            methods.append(PaymentMethodType.afterpay.wireValue)
+        }
+        return methods
+    }
 
     // MARK: - Private Properties
 
-    private let merchantId: String
+    private let merchantId: String?
     private let countryCode: String
     private let returnURL: String?
 
@@ -27,20 +46,28 @@ public class RoktStripePaymentExtension: PaymentExtension {
 
     // MARK: - Initialization
 
-    /// Initialize RoktStripePaymentExtension with an Apple Pay merchant identifier.
+    /// Initialize the Rokt payment extension.
+    ///
+    /// Supply `applePayMerchantId` to enable Apple Pay / card support.
+    /// Supply `returnURL` to enable Afterpay (redirect-based). At least one of
+    /// the two must be provided — otherwise the initializer returns `nil`.
     ///
     /// - Parameters:
-    ///   - applePayMerchantId: Apple Pay merchant identifier (must not be empty).
+    ///   - applePayMerchantId: Apple Pay merchant identifier. Omit to disable Apple Pay.
     ///   - countryCode: ISO 3166-1 alpha-2 country code for the payment (default: "US").
+    ///     Applies only to Apple Pay.
     ///   - returnURL: Custom URL scheme for redirect-based payment methods like Afterpay
-    ///     (e.g. `"myapp://stripe-redirect"`). Required for Afterpay support.
-    /// - Returns: `nil` if `applePayMerchantId` is empty.
+    ///     (e.g. `"myapp://stripe-redirect"`). Omit to disable Afterpay.
+    /// - Returns: `nil` if both `applePayMerchantId` and `returnURL` are omitted or empty.
     public init?(
-        applePayMerchantId: String,
+        applePayMerchantId: String? = nil,
         countryCode: String = "US",
         returnURL: String? = nil
     ) {
-        guard !applePayMerchantId.isEmpty else { return nil }
+        let hasApplePay = !(applePayMerchantId?.isEmpty ?? true)
+        let hasAfterpay = !(returnURL?.isEmpty ?? true)
+        guard hasApplePay || hasAfterpay else { return nil }
+
         self.merchantId = applePayMerchantId
         self.countryCode = countryCode
         self.returnURL = returnURL
@@ -55,11 +82,14 @@ public class RoktStripePaymentExtension: PaymentExtension {
         }
 
         let apiClient = STPAPIClient(publishableKey: stripeKey)
-        stripeApplePayManager = StripeApplePayManager(
-            apiClient: apiClient,
-            merchantId: merchantId,
-            countryCode: countryCode
-        )
+
+        if let merchantId, !merchantId.isEmpty {
+            stripeApplePayManager = StripeApplePayManager(
+                apiClient: apiClient,
+                merchantId: merchantId,
+                countryCode: countryCode
+            )
+        }
 
         if let returnURL, !returnURL.isEmpty {
             stripeAfterpayManager = StripeAfterpayManager(
@@ -90,7 +120,7 @@ public class RoktStripePaymentExtension: PaymentExtension {
         switch method {
         case .applePay, .card:
             guard let stripeApplePayManager else {
-                completion(.failed(error: "Apple Pay not configured. Call onRegister(parameters:) with a valid stripeKey first."))
+                completion(.failed(error: "Apple Pay not configured. Provide applePayMerchantId at init."))
                 return
             }
             stripeApplePayManager.presentPayment(
@@ -102,7 +132,7 @@ public class RoktStripePaymentExtension: PaymentExtension {
 
         case .afterpay:
             guard let stripeAfterpayManager else {
-                completion(.failed(error: "Afterpay not configured. Provide a returnURL when initializing the extension."))
+                completion(.failed(error: "Afterpay not configured. Provide a returnURL at init."))
                 return
             }
             stripeAfterpayManager.presentPayment(
