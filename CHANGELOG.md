@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-04-20
+
 ### Breaking Changes
 
+- Rename to RoktPaymentExtension with flexible init ([#14](https://github.com/ROKT/rokt-payment-extension-ios/pull/14))
 - Renamed package, product, class, and CocoaPods pod from `RoktStripePaymentExtension`
   to `RoktPaymentExtension`. Update imports and class references. The GitHub repo has
   been renamed to `rokt-payment-extension-ios`; the old URL auto-redirects but
@@ -26,8 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Afterpay / Clearpay support via Stripe `STPPaymentHandler`, gated on a `returnURL`
-  supplied at extension initialization.
+- Add Afterpay/Clearpay support via Stripe PaymentHandler ([#10](https://github.com/ROKT/rokt-payment-extension-ios/pull/10))
 - `BillingDetailsMapping` helper for translating `ContactAddress` to Stripe billing
   and shipping detail types.
 - `handleURLCallback(with:)` implementation forwarding redirect URLs to
@@ -35,16 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Afterpay redirect flows.
 - Ability to initialize the extension for Afterpay-only use (no Apple Pay merchant
   ID required).
-
-## [1.0.0] - 2026-04-20
-
-### Breaking Changes
-
-- Rename to RoktPaymentExtension with flexible init ([#14](https://github.com/ROKT/rokt-payment-extension-ios/pull/14))
-
-### Added
-
-- Add Afterpay/Clearpay support via Stripe PaymentHandler ([#10](https://github.com/ROKT/rokt-payment-extension-ios/pull/10))
 
 ### Changed
 
