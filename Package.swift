@@ -2,10 +2,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "RoktStripePaymentExtension",
+    name: "RoktPaymentExtension",
     platforms: [.iOS(.v15)],
     products: [
-        .library(name: "RoktStripePaymentExtension", targets: ["RoktStripePaymentExtension"])
+        .library(name: "RoktPaymentExtension", targets: ["RoktPaymentExtension"])
     ],
     dependencies: [
         .package(url: "https://github.com/ROKT/rokt-contracts-apple.git", from: "1.0.0"),
@@ -13,7 +13,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "RoktStripePaymentExtension",
+            name: "RoktPaymentExtension",
             dependencies: [
                 .product(name: "RoktContracts", package: "rokt-contracts-apple"),
                 .product(name: "StripeApplePay", package: "stripe-ios"),
@@ -21,8 +21,8 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "RoktStripePaymentExtensionTests",
-            dependencies: ["RoktStripePaymentExtension"]
+            name: "RoktPaymentExtensionTests",
+            dependencies: ["RoktPaymentExtension"]
         )
     ]
 )

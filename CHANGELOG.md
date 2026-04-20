@@ -11,8 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking Changes
 
-- Bump RoktContracts to `~> 1.0` and adopt new `PaymentContext` parameter on
-  `presentPaymentSheet(item:method:context:from:preparePayment:completion:)`.
+- Renamed package, product, class, and CocoaPods pod from `RoktStripePaymentExtension`
+  to `RoktPaymentExtension`. Update imports and class references. The GitHub repo has
+  been renamed to `rokt-payment-extension-ios`; the old URL auto-redirects but
+  consumers should update their `Package.swift` and Podfile.
+- `RoktPaymentExtension` initializer parameters are now all optional.
+  `applePayMerchantId` is optional — omit to build an Afterpay-only extension.
+  `returnURL` is already optional. The initializer still returns `nil` if both are
+  omitted or empty.
+- `supportedMethods` is now a computed property reflecting the parameters provided
+  at init; methods with no backing configuration are no longer advertised.
+- Bumped RoktContracts to `~> 1.0` and adopted the new `PaymentContext` parameter
+  on `presentPaymentSheet(item:method:context:from:preparePayment:completion:)`.
 
 ### Added
 
@@ -23,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `handleURLCallback(with:)` implementation forwarding redirect URLs to
   `StripeAPI.handleURLCallback(with:)` so the Rokt SDK can complete in-flight
   Afterpay redirect flows.
+- Ability to initialize the extension for Afterpay-only use (no Apple Pay merchant
+  ID required).
 
 ## [0.1.2] - 2026-04-02
 

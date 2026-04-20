@@ -43,8 +43,13 @@ internal class StripeAfterpayManager {
             return
         }
 
-        guard let billingAddress = context.billingAddress else {
-            completion(.failed(error: "Afterpay requires a billing address. Provide billingAddress in PaymentContext."))
+        // Afterpay requires billing details. If the partner only supplies a
+        // shipping address, fall back to that so the payment can still be
+        // confirmed.
+        guard let billingAddress = context.billingAddress ?? context.shippingAddress else {
+            completion(.failed(
+                error: "Afterpay requires a billing or shipping address. Provide at least one in PaymentContext."
+            ))
             return
         }
 

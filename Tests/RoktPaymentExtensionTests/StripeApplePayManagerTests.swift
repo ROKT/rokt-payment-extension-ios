@@ -1,17 +1,17 @@
 import RoktContracts
 import XCTest
-@testable import RoktStripePaymentExtension
+@testable import RoktPaymentExtension
 
 /// Tests that exercise validation paths inside StripeApplePayManager through the public facade.
 /// Direct unit tests of StripeApplePayManager internal validation use presentPaymentSheet,
 /// which surfaces failures synchronously through the completion handler when item is invalid.
 final class StripeApplePayManagerTests: XCTestCase {
 
-    private var ext: RoktStripePaymentExtension!
+    private var ext: RoktPaymentExtension!
 
     override func setUp() {
         super.setUp()
-        ext = RoktStripePaymentExtension(applePayMerchantId: "merchant.test")!
+        ext = RoktPaymentExtension(applePayMerchantId: "merchant.test")!
         ext.onRegister(parameters: ["stripeKey": "pk_test_dummy"])
     }
 
@@ -102,7 +102,7 @@ final class StripeApplePayManagerTests: XCTestCase {
     // MARK: - Validation: no manager (not registered)
 
     func testPresentPaymentSheetWithoutRegistrationFails() {
-        let unregisteredExt = RoktStripePaymentExtension(applePayMerchantId: "merchant.test")!
+        let unregisteredExt = RoktPaymentExtension(applePayMerchantId: "merchant.test")!
         let item = PaymentItem(id: "item-1", name: "Widget", amount: 9.99, currency: "USD")
         let expectation = expectation(description: "completion called")
 

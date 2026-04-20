@@ -1,4 +1,4 @@
-# RoktStripePaymentExtension
+# RoktPaymentExtension
 
 Stripe payment extension implementing `PaymentExtension` protocol from RoktContracts.
 
@@ -10,7 +10,7 @@ swift build --sdk $(xcrun --sdk iphonesimulator --show-sdk-path) --triple arm64-
 
 # Test
 xcodebuild test \
-  -scheme RoktStripePaymentExtension \
+  -scheme RoktPaymentExtension \
   -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' \
   -skipPackagePluginValidation
 
@@ -19,14 +19,14 @@ trunk check --all
 trunk fmt --all
 
 # Pod lint
-pod lib lint RoktStripePaymentExtension.podspec --allow-warnings
+pod lib lint RoktPaymentExtension.podspec --allow-warnings
 ```
 
 ## Architecture
 
 Public facade → StripeApplePayManager → Stripe SDK (STPApplePayContext)
 
-- `RoktStripePaymentExtension`: Public class implementing `PaymentExtension`
+- `RoktPaymentExtension`: Public class implementing `PaymentExtension`
 - `StripeApplePayManager`: Internal Apple Pay orchestration
 - `ContactAddressMapping`: PKContact → ContactAddress conversion
 

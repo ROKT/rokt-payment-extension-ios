@@ -1,7 +1,7 @@
 import Contacts
 import PassKit
 import XCTest
-@testable import RoktStripePaymentExtension
+@testable import RoktPaymentExtension
 
 final class ContactAddressMappingTests: XCTestCase {
 
