@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-04-21
+
+### Added
+
+- Upgrade Stripe iOS SDK dependency to 25.x ([#16](https://github.com/ROKT/rokt-payment-extension-ios/pull/16))
+
 ## [1.0.0] - 2026-04-20
 
 ### Breaking Changes
