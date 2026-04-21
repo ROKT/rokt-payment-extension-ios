@@ -16,6 +16,6 @@ Pod::Spec.new do |s|
   s.source_files = 'Sources/RoktPaymentExtension/**/*.swift'
   s.frameworks = 'Foundation', 'PassKit'
   s.dependency 'RoktContracts', '~> 1.0'
-  s.dependency 'StripeApplePay', '~> 24.25'
-  s.dependency 'StripePayments', '~> 24.25'
+  s.dependency 'StripeApplePay', '~> 25.0'
+  s.dependency 'StripePayments', '~> 25.0'
 end

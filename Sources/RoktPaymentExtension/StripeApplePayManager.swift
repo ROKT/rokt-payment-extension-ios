@@ -173,21 +173,16 @@ private class StripeApplePayDelegate: NSObject, ApplePayContextDelegate {
     func applePayContext(
         _ context: STPApplePayContext,
         didCreatePaymentMethod paymentMethod: StripeAPI.PaymentMethod,
-        paymentInformation: PKPayment,
-        completion: @escaping STPIntentClientSecretCompletionBlock
-    ) {
+        paymentInformation: PKPayment
+    ) async throws -> String {
         guard isPaymentPrepared, let secret = clientSecret else {
-            completion(
-                nil,
-                NSError(
-                    domain: "RoktPaymentExtension",
-                    code: -1,
-                    userInfo: [NSLocalizedDescriptionKey: "Payment must be prepared before completion"]
-                )
+            throw NSError(
+                domain: "RoktPaymentExtension",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: "Payment must be prepared before completion"]
             )
-            return
         }
-        completion(secret, nil)
+        return secret
     }
 
     func applePayContext(

@@ -9,7 +9,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ROKT/rokt-contracts-apple.git", from: "1.0.0"),
-        .package(url: "https://github.com/stripe/stripe-ios.git", from: "24.25.0")
+        .package(url: "https://github.com/stripe/stripe-ios.git", from: "25.0.0")
     ],
     targets: [
         .target(

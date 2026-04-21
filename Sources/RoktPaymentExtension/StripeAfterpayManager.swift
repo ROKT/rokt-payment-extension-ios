@@ -90,7 +90,8 @@ internal class StripeAfterpayManager {
             let authContext = SimpleAuthenticationContext(presentingController: viewController)
 
             DispatchQueue.main.async {
-                STPPaymentHandler.shared().confirmPayment(params, with: authContext) { status, intent, error in
+                STPPaymentHandler.shared()
+                    .confirmPaymentIntent(params: params, authenticationContext: authContext) { status, intent, error in
                     switch status {
                     case .succeeded:
                         completion(.succeeded(transactionId: intent?.stripeId ?? preparation.clientSecret))
