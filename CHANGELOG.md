@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-04-23
+
+### Breaking Changes
+
+- Replace returnURL with urlScheme in payment extension init ([#18](https://github.com/ROKT/rokt-payment-extension-ios/pull/18))
+
 ## [1.1.0] - 2026-04-21
 
 ### Added
