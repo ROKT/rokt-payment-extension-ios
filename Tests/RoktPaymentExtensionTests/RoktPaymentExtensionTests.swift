@@ -14,12 +14,12 @@ final class RoktPaymentExtensionTests: XCTestCase {
         XCTAssertNil(RoktPaymentExtension(applePayMerchantId: ""))
     }
 
-    func testInitWithEmptyReturnURLOnlyReturnsNil() {
-        XCTAssertNil(RoktPaymentExtension(returnURL: ""))
+    func testInitWithEmptyUrlSchemeOnlyReturnsNil() {
+        XCTAssertNil(RoktPaymentExtension(urlScheme: ""))
     }
 
     func testInitWithBothEmptyReturnsNil() {
-        XCTAssertNil(RoktPaymentExtension(applePayMerchantId: "", returnURL: ""))
+        XCTAssertNil(RoktPaymentExtension(applePayMerchantId: "", urlScheme: ""))
     }
 
     // MARK: - Apple Pay only
@@ -38,7 +38,10 @@ final class RoktPaymentExtensionTests: XCTestCase {
     // MARK: - Afterpay only
 
     func testInitWithAfterpayOnly() {
-        let ext = RoktPaymentExtension(returnURL: "myapp://stripe-redirect")
+        let ext = RoktPaymentExtension(
+            urlScheme: "myapp",
+            bundle: makeBundle(withSchemes: ["myapp"])
+        )
         XCTAssertNotNil(ext)
         XCTAssertEqual(ext?.supportedMethods, ["afterpay_clearpay"])
     }
@@ -48,7 +51,8 @@ final class RoktPaymentExtensionTests: XCTestCase {
     func testInitWithBothMethods() {
         let ext = RoktPaymentExtension(
             applePayMerchantId: "merchant.test",
-            returnURL: "myapp://stripe-redirect"
+            urlScheme: "myapp",
+            bundle: makeBundle(withSchemes: ["myapp"])
         )
         XCTAssertNotNil(ext)
         XCTAssertEqual(ext?.supportedMethods, ["apple_pay", "card", "afterpay_clearpay"])
@@ -59,7 +63,8 @@ final class RoktPaymentExtensionTests: XCTestCase {
     func testProtocolProperties() {
         let ext = RoktPaymentExtension(
             applePayMerchantId: "merchant.test",
-            returnURL: "myapp://stripe-redirect"
+            urlScheme: "myapp",
+            bundle: makeBundle(withSchemes: ["myapp"])
         )!
         XCTAssertEqual(ext.id, "rokt-payment-extension")
         XCTAssertEqual(ext.extensionDescription, "Rokt Payment Extension")
@@ -92,7 +97,10 @@ final class RoktPaymentExtensionTests: XCTestCase {
     // MARK: - presentPaymentSheet error paths
 
     func testApplePayNotConfiguredRejectsTap() {
-        let ext = RoktPaymentExtension(returnURL: "myapp://stripe-redirect")!
+        let ext = RoktPaymentExtension(
+            urlScheme: "myapp",
+            bundle: makeBundle(withSchemes: ["myapp"])
+        )!
         ext.onRegister(parameters: ["stripeKey": "pk_test_123"])
 
         let item = PaymentItem(id: "item-1", name: "Widget", amount: 10.00, currency: "USD")
@@ -138,7 +146,7 @@ final class RoktPaymentExtensionTests: XCTestCase {
             },
             completion: { result in
                 XCTAssertEqual(result.outcome, .failed)
-                XCTAssertTrue(result.errorMessage?.contains("Afterpay not configured") ?? false)
+                XCTAssertTrue(result.errorMessage?.contains("Provide a urlScheme") ?? false)
                 expect.fulfill()
             }
         )
@@ -146,7 +154,59 @@ final class RoktPaymentExtensionTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    // MARK: - Scheme validation helpers
+
+    func testIsValidBareSchemeAcceptsBareScheme() {
+        XCTAssertTrue(RoktPaymentExtension.isValidBareScheme("myapp"))
+        XCTAssertTrue(RoktPaymentExtension.isValidBareScheme("com.partner.app"))
+    }
+
+    func testIsValidBareSchemeRejectsEmbeddedURL() {
+        XCTAssertFalse(RoktPaymentExtension.isValidBareScheme(""))
+        XCTAssertFalse(RoktPaymentExtension.isValidBareScheme("myapp://stripe-redirect"))
+        XCTAssertFalse(RoktPaymentExtension.isValidBareScheme("myapp/something"))
+    }
+
+    func testIsSchemeRegisteredMatchesCaseInsensitive() {
+        let b = makeBundle(withSchemes: ["MyApp"])
+        XCTAssertTrue(RoktPaymentExtension.isSchemeRegistered("myapp", in: b))
+        XCTAssertTrue(RoktPaymentExtension.isSchemeRegistered("MYAPP", in: b))
+    }
+
+    func testIsSchemeRegisteredReturnsFalseWhenMissing() {
+        XCTAssertFalse(
+            RoktPaymentExtension.isSchemeRegistered("myapp", in: makeBundle(withSchemes: ["other"]))
+        )
+        XCTAssertFalse(
+            RoktPaymentExtension.isSchemeRegistered("myapp", in: makeBundleWithoutSchemes())
+        )
+    }
+
     // MARK: - handleURLCallback
+
+    func testHandleURLCallbackApplePayOnlyAlwaysReturnsFalse() {
+        let ext = RoktPaymentExtension(applePayMerchantId: "merchant.test")!
+        XCTAssertFalse(ext.handleURLCallback(with: URL(string: "myapp://rokt-payment-return")!))
+        XCTAssertFalse(ext.handleURLCallback(with: URL(string: "anything://anything")!))
+    }
+
+    func testHandleURLCallbackRejectsWrongScheme() {
+        let ext = RoktPaymentExtension(
+            urlScheme: "myapp",
+            bundle: makeBundle(withSchemes: ["myapp"])
+        )!
+        let url = URL(string: "other://rokt-payment-return")!
+        XCTAssertFalse(ext.handleURLCallback(with: url))
+    }
+
+    func testHandleURLCallbackRejectsWrongHost() {
+        let ext = RoktPaymentExtension(
+            urlScheme: "myapp",
+            bundle: makeBundle(withSchemes: ["myapp"])
+        )!
+        let url = URL(string: "myapp://stripe-redirect")!
+        XCTAssertFalse(ext.handleURLCallback(with: url))
+    }
 
     func testHandleURLCallbackReturnsFalseForUnrelatedURL() {
         let ext = RoktPaymentExtension(applePayMerchantId: "merchant.test")!

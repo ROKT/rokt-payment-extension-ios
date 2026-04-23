@@ -11,7 +11,8 @@ final class StripeAfterpayManagerTests: XCTestCase {
         super.setUp()
         ext = RoktPaymentExtension(
             applePayMerchantId: "merchant.test",
-            returnURL: "testapp://stripe-redirect"
+            urlScheme: "testapp",
+            bundle: makeBundle(withSchemes: ["testapp"])
         )!
         ext.onRegister(parameters: ["stripeKey": "pk_test_dummy"])
     }
