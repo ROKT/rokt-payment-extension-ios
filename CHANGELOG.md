@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Explicitly reject the new `.paypal` payment method until PayPal support
   lands in this extension
 
+## [2.0.1] - 2026-04-24
+
+### Fixed
+
+- Use server total instead of item subtotal in sheet ([#20](https://github.com/ROKT/rokt-payment-extension-ios/pull/20))
+
 ## [2.0.0] - 2026-04-23
 
 ### Breaking Changes
