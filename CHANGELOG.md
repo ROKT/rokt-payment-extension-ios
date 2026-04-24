@@ -9,19 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-04-24
+
 ### Fixed
 
-- Apple Pay sheet now shows the server-authoritative total (including
-  shipping and tax) from `PaymentPreparation.totalAmount` instead of the
-  pre-shipping subtotal, which previously caused the sheet to disagree
-  with the amount Stripe actually charged
+- Use server total instead of item subtotal in sheet ([#20](https://github.com/ROKT/rokt-payment-extension-ios/pull/20))
 
 ### Changed
 
 - Bump `rokt-contracts-apple` to `2.0.0` / `RoktContracts` to `~> 2.0` to
   surface `totalAmount`, `shippingCost`, and `tax` on `PaymentPreparation`
-- Explicitly reject the new `.paypal` payment method until PayPal support
-  lands in this extension
 
 ## [2.0.0] - 2026-04-23
 
