@@ -3,9 +3,9 @@ import StripePayments
 
 enum BillingDetailsMapping {
     /// Maps a ``ContactAddress`` to Stripe billing details for Afterpay payment method params.
-    static func map(from address: ContactAddress) -> STPPaymentMethodBillingDetails {
+    static func map(from address: ContactAddress, fallbackName: String? = nil) -> STPPaymentMethodBillingDetails {
         let billing = STPPaymentMethodBillingDetails()
-        billing.name = address.name
+        billing.name = resolvedName(address.name, fallback: fallbackName)
         billing.email = address.email
 
         let stripeAddress = STPPaymentMethodAddress()
@@ -20,7 +20,10 @@ enum BillingDetailsMapping {
     }
 
     /// Maps a ``ContactAddress`` to Stripe shipping details for the PaymentIntent.
-    static func mapShipping(from address: ContactAddress) -> STPPaymentIntentShippingDetailsParams {
+    static func mapShipping(
+        from address: ContactAddress,
+        fallbackName: String? = nil
+    ) -> STPPaymentIntentShippingDetailsParams {
         let shippingAddress = STPPaymentIntentShippingDetailsAddressParams(line1: address.addressLine1 ?? "")
         shippingAddress.city = address.city
         shippingAddress.state = address.state
@@ -29,7 +32,21 @@ enum BillingDetailsMapping {
 
         return STPPaymentIntentShippingDetailsParams(
             address: shippingAddress,
-            name: address.name
+            name: resolvedName(address.name, fallback: fallbackName) ?? ""
         )
+    }
+
+    static func resolvedName(_ name: String?, fallback: String? = nil) -> String? {
+        let trimmed = name?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let trimmed, !trimmed.isEmpty {
+            return trimmed
+        }
+
+        let fallback = fallback?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let fallback, !fallback.isEmpty {
+            return fallback
+        }
+
+        return nil
     }
 }
