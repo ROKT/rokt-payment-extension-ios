@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Ensure Afterpay sends a non-empty Stripe billing and shipping name when one is available.
 
+## [2.0.2] - 2026-05-12
+
+### Fixed
+
+- Add Stripe failure identifiers ([#23](https://github.com/ROKT/rokt-payment-extension-ios/pull/23))
+- Include names in Stripe payment details ([#22](https://github.com/ROKT/rokt-payment-extension-ios/pull/22))
+
 ## [2.0.1] - 2026-04-24
 
 ### Fixed
