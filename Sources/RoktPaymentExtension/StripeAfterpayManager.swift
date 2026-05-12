@@ -53,6 +53,16 @@ internal class StripeAfterpayManager {
             return
         }
 
+        guard let billingName = BillingDetailsMapping.resolvedName(
+            billingAddress.name,
+            fallback: context.shippingAddress?.name
+        ) else {
+            completion(.failed(
+                error: "Afterpay requires a billing or shipping name. Provide a non-empty name in PaymentContext."
+            ))
+            return
+        }
+
         // Call preparePayment with the pre-collected address before showing any UI
         preparePayment(billingAddress) { [weak self] preparation, error in
             guard let self else { return }
@@ -78,13 +88,13 @@ internal class StripeAfterpayManager {
             let params = STPPaymentIntentParams(clientSecret: preparation.clientSecret)
             params.paymentMethodParams = STPPaymentMethodParams(
                 afterpayClearpay: STPPaymentMethodAfterpayClearpayParams(),
-                billingDetails: BillingDetailsMapping.map(from: billingAddress),
+                billingDetails: BillingDetailsMapping.map(from: billingAddress, fallbackName: billingName),
                 metadata: nil
             )
             params.returnURL = self.returnURL
 
             if let shippingAddress = context.shippingAddress {
-                params.shipping = BillingDetailsMapping.mapShipping(from: shippingAddress)
+                params.shipping = BillingDetailsMapping.mapShipping(from: shippingAddress, fallbackName: billingName)
             }
 
             let authContext = SimpleAuthenticationContext(presentingController: viewController)

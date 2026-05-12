@@ -29,8 +29,12 @@ final class StripeAfterpayManagerTests: XCTestCase {
     }
 
     private func makeBillingAddress() -> ContactAddress {
+        makeAddress(name: "Jane Smith")
+    }
+
+    private func makeAddress(name: String) -> ContactAddress {
         ContactAddress(
-            name: "Jane Smith",
+            name: name,
             email: "jane@example.com",
             addressLine1: "123 Main St",
             city: "New York",
@@ -84,6 +88,42 @@ final class StripeAfterpayManagerTests: XCTestCase {
         ) { _ in }
 
         waitForExpectations(timeout: 1)
+    }
+
+    func testAfterpayWithEmptyAddressNameFailsBeforePreparation() {
+        let item = PaymentItem(id: "item-1", name: "Widget", amount: 10.00, currency: "USD")
+        let context = makeContext(billingAddress: makeAddress(name: " "))
+        let expect = expectation(description: "completion")
+
+        ext.presentPaymentSheet(
+            item: item,
+            method: .afterpay,
+            context: context,
+            from: UIViewController(),
+            preparePayment: { _, _ in XCTFail("should not be called") }
+        ) { result in
+            XCTAssertEqual(result.outcome, .failed)
+            XCTAssertTrue(result.errorMessage?.contains("name") ?? false)
+            expect.fulfill()
+        }
+
+        waitForExpectations(timeout: 1)
+    }
+
+    func testShippingMappingFallsBackToBillingNameWhenShippingNameEmpty() {
+        let shipping = makeAddress(name: " ")
+
+        let params = BillingDetailsMapping.mapShipping(from: shipping, fallbackName: "Jane Smith")
+
+        XCTAssertEqual(params.name, "Jane Smith")
+    }
+
+    func testShippingMappingPrefersTrimmedShippingName() {
+        let shipping = makeAddress(name: "  Sam Buyer  ")
+
+        let params = BillingDetailsMapping.mapShipping(from: shipping, fallbackName: "Jane Smith")
+
+        XCTAssertEqual(params.name, "Sam Buyer")
     }
 
     // MARK: - Validation: empty name
