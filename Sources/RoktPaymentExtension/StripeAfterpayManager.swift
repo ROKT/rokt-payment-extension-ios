@@ -94,11 +94,18 @@ internal class StripeAfterpayManager {
                     .confirmPaymentIntent(params: params, authenticationContext: authContext) { status, intent, error in
                     switch status {
                     case .succeeded:
-                        completion(.succeeded(transactionId: intent?.stripeId ?? preparation.clientSecret))
+                        completion(.succeeded(transactionId: StripePaymentDiagnostics.transactionId(
+                            from: intent,
+                            clientSecret: preparation.clientSecret
+                        )))
                     case .canceled:
                         completion(.canceled)
                     case .failed:
-                        completion(.failed(error: error?.localizedDescription ?? "Afterpay payment failed"))
+                        completion(.failed(error: StripePaymentDiagnostics.failureMessage(
+                            baseMessage: error?.localizedDescription ?? "Afterpay payment failed",
+                            paymentIntent: intent,
+                            error: error
+                        )))
                     @unknown default:
                         completion(.failed(error: "Unknown payment status"))
                     }

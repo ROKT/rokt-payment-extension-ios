@@ -225,9 +225,15 @@ private class StripeApplePayDelegate: NSObject, ApplePayContextDelegate {
     ) {
         switch status {
         case .success:
-            completion(.succeeded(transactionId: clientSecret ?? "unknown"))
+            completion(.succeeded(transactionId: StripePaymentDiagnostics.paymentIntentId(
+                fromClientSecret: clientSecret
+            ) ?? "unknown"))
         case .error:
-            completion(.failed(error: error?.localizedDescription ?? "Unknown error"))
+            completion(.failed(error: StripePaymentDiagnostics.failureMessage(
+                baseMessage: error?.localizedDescription ?? "Unknown error",
+                paymentIntentId: StripePaymentDiagnostics.paymentIntentId(fromClientSecret: clientSecret),
+                error: error
+            )))
         case .userCancellation:
             completion(.canceled)
         @unknown default:
