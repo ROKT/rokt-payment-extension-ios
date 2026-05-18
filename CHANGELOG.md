@@ -18,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Require `RoktContracts` 2.0.2 or later.
 
+## [2.0.3] - 2026-05-18
+
+### Fixed
+
+- Preserve address line 2 in Stripe billing/shipping ([#27](https://github.com/ROKT/rokt-payment-extension-ios/pull/27))
+
+### Changed
+
+- Bump trunk-io/trunk-action from 1.2.4 to 1.3.1 ([#25](https://github.com/ROKT/rokt-payment-extension-ios/pull/25))
+- Bump actions/create-github-app-token from 3.1.1 to 3.2.0 ([#26](https://github.com/ROKT/rokt-payment-extension-ios/pull/26))
+
 ## [2.0.2] - 2026-05-12
 
 ### Fixed
