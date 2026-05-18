@@ -37,6 +37,7 @@ final class StripeAfterpayManagerTests: XCTestCase {
             name: name,
             email: "jane@example.com",
             addressLine1: "123 Main St",
+            addressLine2: "Apt 4B",
             city: "New York",
             state: "NY",
             postalCode: "10001",
@@ -124,6 +125,22 @@ final class StripeAfterpayManagerTests: XCTestCase {
         let params = BillingDetailsMapping.mapShipping(from: shipping, fallbackName: "Jane Smith")
 
         XCTAssertEqual(params.name, "Sam Buyer")
+    }
+
+    func testBillingMappingIncludesAddressLine2() {
+        let billing = makeBillingAddress()
+
+        let details = BillingDetailsMapping.map(from: billing)
+
+        XCTAssertEqual(details.address?.line2, "Apt 4B")
+    }
+
+    func testShippingMappingIncludesAddressLine2() {
+        let shipping = makeAddress(name: "Jane Smith")
+
+        let params = BillingDetailsMapping.mapShipping(from: shipping)
+
+        XCTAssertEqual(params.address.line2, "Apt 4B")
     }
 
     // MARK: - Validation: empty name

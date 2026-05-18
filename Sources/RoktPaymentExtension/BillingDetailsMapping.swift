@@ -10,6 +10,7 @@ enum BillingDetailsMapping {
 
         let stripeAddress = STPPaymentMethodAddress()
         stripeAddress.line1 = address.addressLine1
+        stripeAddress.line2 = address.addressLine2
         stripeAddress.city = address.city
         stripeAddress.state = address.state
         stripeAddress.postalCode = address.postalCode
@@ -25,6 +26,7 @@ enum BillingDetailsMapping {
         fallbackName: String? = nil
     ) -> STPPaymentIntentShippingDetailsParams {
         let shippingAddress = STPPaymentIntentShippingDetailsAddressParams(line1: address.addressLine1 ?? "")
+        shippingAddress.line2 = address.addressLine2
         shippingAddress.city = address.city
         shippingAddress.state = address.state
         shippingAddress.postalCode = address.postalCode
