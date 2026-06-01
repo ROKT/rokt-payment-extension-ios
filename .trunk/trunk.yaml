@@ -8,22 +8,22 @@ cli:
 plugins:
   sources:
     - id: trunk
-      ref: v1.7.6
+      ref: v1.10.0
       uri: https://github.com/trunk-io/plugins
 runtimes:
   enabled:
     - go@1.21.0
     - node@22.16.0
-    - python@3.10.8
+    - python@3.14.4
 lint:
   enabled:
-    - checkov@3.2.513
-    - osv-scanner@2.3.5
-    - trufflehog@3.94.1
+    - checkov@3.2.530
+    - osv-scanner@2.3.8
+    - trufflehog@3.95.3
     - swiftformat@0.55.5
     - git-diff-check
     - markdownlint@0.48.0
-    - prettier@3.8.1
+    - prettier@3.8.3
     - shellcheck@0.11.0
     - shfmt@3.6.0
     - swiftlint@0.58.2
